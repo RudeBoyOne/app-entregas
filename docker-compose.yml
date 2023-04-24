@@ -1,0 +1,37 @@
+version: '3.8'
+services:
+  api:
+    container_name: api
+    image: appentregas/api:1.0.0-SNAPSHOT
+    ports:
+      - "8081:8081"
+    environment:
+      MP_JWT_VERIFY_PUBLICKEY_LOCATION: /auth/publicKey.pem
+    volumes:
+      - type: bind
+        source: ./auth
+        target: /auth
+  authorization:
+    container_name: authorization
+    image: appentregas/authorization:1.0.0-SNAPSHOT
+    ports:
+      - "8082:8082"
+    environment:
+      SMALLRYE_JWT_SIGN_KEY_LOCATION: /jwt/privateKey.pem
+    volumes:
+      - type: bind
+        source: ./auth
+        target: /auth
+  database:
+    image: mysql/mysql-server
+    ports:
+      - "3306:3036"
+    environment:
+      MYSQL_HOST: 172.17.0.1
+      MYSQL_USER: "root"
+      MYSQL_PASSWORD: "myData*13"
+      URL_CONNECTION: "jdbc:mysql://172.17.0.1/app-entregas?createDatabaseIfNotExist=true&serverTimezone=UTC"
+    volumes:
+      - db-volume:/var/lib/mysql
+volumes:
+  db-volume:
